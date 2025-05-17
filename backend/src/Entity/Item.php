@@ -18,6 +18,9 @@ class Item
     #[ORM\Column(type: 'integer')]
     private int $price; // stored in cents
 
+    #[ORM\Column(type: 'string', length: 5)]
+    private string $grade;
+
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false)]
     private Category $category;
@@ -48,5 +51,10 @@ class Item
     public function getModel(): Model
     {
         return $this->model;
+    }
+
+    public function getGrade(): string
+    {
+        return $this->grade;
     }
 }

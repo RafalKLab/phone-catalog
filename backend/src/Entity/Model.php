@@ -20,12 +20,21 @@ class Model
     #[ORM\Column(length: 100)]
     private string $name;
 
+    #[ORM\ManyToOne(targetEntity: Brand::class, inversedBy: 'models')]
+    #[ORM\JoinColumn(nullable: false)]
+    private Brand $brand;
+
     #[ORM\OneToMany(mappedBy: 'model', targetEntity: Item::class)]
     private Collection $items;
+
+    #[ORM\ManyToMany(targetEntity: Capacity::class, inversedBy: 'models')]
+    #[ORM\JoinTable(name: 'model_capacity')]
+    private Collection $capacities;
 
     public function __construct()
     {
         $this->items = new ArrayCollection();
+        $this->capacities = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -41,5 +50,15 @@ class Model
     public function getItems(): Collection
     {
         return $this->items;
+    }
+
+    public function getBrand(): Brand
+    {
+        return $this->brand;
+    }
+
+    public function getCapacities(): Collection
+    {
+        return $this->capacities;
     }
 }

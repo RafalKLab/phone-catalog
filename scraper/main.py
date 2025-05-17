@@ -3,8 +3,9 @@ import requests
 import hashlib
 from bs4 import BeautifulSoup
 from service.database_service import insert_data
+from typing import Optional, Dict, List, Tuple
 
-def extract_data(text):
+def extract_data(text: str) -> Optional[Dict[str, str | int]]:
     tokens = tokenize_product_text(text)
     hash = generate_item_hash_from_tokens(tokens)
     tokens = remove_junk_words(tokens)
@@ -35,20 +36,18 @@ def extract_data(text):
           "hash": hash
        }
 
+def tokenize_product_text(text: str) -> List[str]:
+    clean_text = text.replace('\xa0', ' ')
+    tokens = clean_text.strip().split()  # Split by whitespace
+
+    return tokens
 
 def generate_item_hash_from_tokens(tokens: list[str]) -> str:
     joined = " ".join(tokens).lower().strip()
 
     return hashlib.sha256(joined.encode("utf-8")).hexdigest()
 
-
-def tokenize_product_text(text):
-    clean_text = text.replace('\xa0', ' ')
-    tokens = clean_text.strip().split()  # Split by whitespace
-
-    return tokens
-
-def remove_junk_words(tokens):
+def remove_junk_words(tokens: List[str]) -> List[str]:
     """
     Removes predefined junk words (case-insensitive) from token list.
     """
@@ -56,8 +55,7 @@ def remove_junk_words(tokens):
 
     return [t for t in tokens if t.lower() not in JUNK_WORDS]
 
-
-def extract_grade_from_tokens(tokens):
+def extract_grade_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
     """
     Extracts the grade letter following the word 'Grade', removes both from tokens.
     General rule: if we see 'Grade' and next token is a single letter, that's the grade.
@@ -81,7 +79,7 @@ def extract_grade_from_tokens(tokens):
 
     return grade, new_tokens
 
-def extract_price_from_tokens(tokens):
+def extract_price_from_tokens(tokens: List[str]) -> Tuple[int, List[str]]:
     """
     Extracts the price between 'price:' and 'PLN'.
     Returns price in cents (int).
@@ -113,10 +111,7 @@ def extract_price_from_tokens(tokens):
 
     return price, new_tokens
 
-
-
-
-def extract_condition_from_tokens(tokens):
+def extract_condition_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
     """
     Extracts the last token as condition if it looks valid.
     Removes it from the token list.
@@ -128,8 +123,7 @@ def extract_condition_from_tokens(tokens):
 
     return last_token.capitalize(), tokens[:-1]  # Remove condition token
 
-
-def extract_storage_from_tokens(tokens):
+def extract_storage_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
     """
     Extracts the first token containing 'GB' (case-insensitive) as storage capacity.
     Removes it from the token list.
@@ -145,7 +139,7 @@ def extract_storage_from_tokens(tokens):
 
     return storage, new_tokens
 
-def extract_brand_from_tokens(tokens):
+def extract_brand_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
     """
     Extracts the first token as brand, removes it from the token list.
     """
@@ -156,7 +150,7 @@ def extract_brand_from_tokens(tokens):
 
     return brand, tokens[1:]
 
-def extract_model_from_tokens(tokens):
+def extract_model_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
     """
     All remaining tokens are treated as model.
     Removes commas from each token before joining.
@@ -164,7 +158,6 @@ def extract_model_from_tokens(tokens):
     cleaned_tokens = [t.replace(",", "") for t in tokens]
 
     return " ".join(cleaned_tokens).strip(), tokens
-
 
 
 def main():
@@ -227,8 +220,6 @@ def main():
 
 
     print("Scraping complete.")
-
-
 
 if __name__ == "__main__":
     main()
