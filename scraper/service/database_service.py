@@ -66,17 +66,6 @@ def insert_capacity(cursor, capacity):
 
     return capacity_id
 
-def insert_model_capacity(cursor, model_id, capacity_id):
-    cursor.execute("""
-        SELECT 1 FROM model_capacity WHERE model_id = %s AND capacity_id = %s
-    """, (model_id, capacity_id))
-
-    if not cursor.fetchone():
-        cursor.execute("""
-            INSERT INTO model_capacity (model_id, capacity_id)
-            VALUES (%s, %s)
-        """, (model_id, capacity_id))
-
 def insert_category(cursor, category_name):
     cursor.execute("SELECT id FROM categories WHERE name=%s", (category_name))
     result = cursor.fetchone()
@@ -87,11 +76,11 @@ def insert_category(cursor, category_name):
 
     return cursor.lastrowid
 
-def insert_item(cursor, model_id, category_id, item):
+def insert_item(cursor, model_id, category_id, capacity_id, item):
     cursor.execute("""
-        INSERT INTO items (model_id, category_id, price, item_hash, grade)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (model_id, category_id, item['price'], item['hash'], item['grade']))
+        INSERT INTO items (model_id, category_id, price, item_hash, grade, capacity_id)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (model_id, category_id, item['price'], item['hash'], item['grade'], capacity_id))
 
 def item_exists(cursor, item_hash: str) -> bool:
     cursor.execute("SELECT 1 FROM items WHERE item_hash = %s LIMIT 1", (item_hash))
@@ -110,9 +99,8 @@ def insert_data(items, category_name="2nd-life-iphone"):
                 brand_id = insert_brand(cursor, item['brand'])
                 model_id = insert_model(cursor, item['model'], brand_id)
                 capacity_id = insert_capacity(cursor, item['storage'])
-                insert_model_capacity(cursor, model_id, capacity_id)
                 category_id = insert_category(cursor, category_name)
-                insert_item(cursor, model_id, category_id, item)
+                insert_item(cursor, model_id, category_id, capacity_id, item)
 
         connection.commit()
     finally:
