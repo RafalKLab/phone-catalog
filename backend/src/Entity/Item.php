@@ -2,6 +2,10 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -14,6 +18,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
     paginationClientEnabled: true,
     normalizationContext: ['groups' => ['item:read']]
 )]
+#[ApiFilter(SearchFilter::class, properties: [
+    'grade' => 'exact',
+    'category.id' => 'exact',
+    'model.id' => 'exact',
+    'model.brand.id' => 'exact',
+    'model.brand.name' => 'partial',
+    'capacity.id' => 'exact',
+])]
+#[ApiFilter(RangeFilter::class, properties: ['price'])]
+#[ApiFilter(OrderFilter::class, properties: ['price', 'grade'], arguments: ['orderParameterName' => 'order'])]
 #[ORM\Entity]
 #[ORM\Table(name: 'items')]
 class Item
