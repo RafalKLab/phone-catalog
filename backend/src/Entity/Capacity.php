@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource]
 #[ORM\Entity]
@@ -18,14 +19,15 @@ class Capacity
     private int $id;
 
     #[ORM\Column(type: 'string', length: 10)]
+    #[Groups(['item:read'])]
     private string $size;
 
-    #[ORM\ManyToMany(targetEntity: Model::class, mappedBy: 'capacities')]
-    private Collection $models;
+    #[ORM\OneToMany(mappedBy: 'capacity', targetEntity: Item::class)]
+    private Collection $items;
 
     public function __construct()
     {
-        $this->models = new ArrayCollection();
+        $this->items = new ArrayCollection();
     }
 
     /**
@@ -44,8 +46,8 @@ class Capacity
         return $this->size;
     }
 
-    public function getModels(): Collection
+    public function getItems(): Collection
     {
-        return $this->models;
+        return $this->items;
     }
 }

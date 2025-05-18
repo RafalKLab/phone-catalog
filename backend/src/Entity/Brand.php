@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource]
 #[ORM\Entity]
@@ -17,6 +18,7 @@ class Brand
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['item:read'])]
     private string $name;
 
     #[ORM\OneToMany(mappedBy: 'brand', targetEntity: Model::class)]
