@@ -10,8 +10,8 @@ def extract_data(text: str) -> Optional[Dict[str, str | int]]:
     tokens = tokenize_product_text(text)
     hash = generate_item_hash_from_tokens(tokens)
     tokens = remove_junk_words(tokens)
-    grade, tokens = extract_grade_from_tokens(tokens)
     price, tokens = extract_price_from_tokens(tokens)
+    grade, tokens = extract_grade_from_tokens(tokens)
     storage, tokens = extract_storage_from_tokens(tokens)
     brand, tokens = extract_brand_from_tokens(tokens)
     model, token = extract_model_from_tokens(tokens)
@@ -98,6 +98,7 @@ def extract_price_from_tokens(tokens: List[str]) -> Tuple[int, List[str]]:
                 end_index = next(j for j in range(i + 1, len(tokens)) if tokens[j].lower() == "pln")
                 raw_price_parts = tokens[i + 1:end_index]
                 raw_price = ''.join(raw_price_parts).replace('\xa0', '').replace(' ', '')
+                raw_price = raw_price.replace(",", ".")
                 price_zl = float(raw_price)
                 price = int(price_zl * 100) if price_zl > 0 else 0
                 i = end_index + 1
@@ -126,15 +127,27 @@ def extract_condition_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
 
 def extract_storage_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
     """
-    Extracts the first token containing 'GB' (case-insensitive) as storage capacity.
+    Extracts the first token containing 'GB' and digits (case-insensitive) as storage capacity.
     Removes it from the token list.
     """
+    STORAGE_NORMALIZATION_MAP = {
+        "GB/16": "16GB",
+        "GB/32": "32GB",
+        "GB/64": "64GB",
+        "GB/128": "128GB",
+        "GB/256": "256GB",
+    }
     storage = "Unknown"
     new_tokens = []
 
     for token in tokens:
-        if storage == "Unknown" and "gb" in token.lower():
+        token_lower = token.lower()
+        if storage == "Unknown" and "gb" in token_lower and re.search(r'\d', token):
             storage = token.upper()
+            if storage in STORAGE_NORMALIZATION_MAP:
+                 storage = STORAGE_NORMALIZATION_MAP[storage]
+            else:
+                 storage = token.upper()
         else:
             new_tokens.append(token)
 
@@ -183,7 +196,7 @@ def main():
             "Accept-Language": "en-US,en;q=0.5"
     }
 
-    URL = "https://breezy.pl/en/category/2nd-life-iphone?page={}"
+    URL = "https://breezy.pl/en/category/2nd-life-smartphones?page={}"
     CHUNK_SIZE = 200
 
     category_name = extract_category_from_url(URL)
