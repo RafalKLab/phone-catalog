@@ -10,5 +10,4 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN composer install --no-scripts --no-interaction --no-progress
-
+RUN composer install --no-interaction --prefer-dist
