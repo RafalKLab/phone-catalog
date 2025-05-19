@@ -25,6 +25,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     'model.brand.id' => 'exact',
     'model.brand.name' => 'partial',
     'capacity.id' => 'exact',
+    'model.name' => 'partial',
 ])]
 #[ApiFilter(RangeFilter::class, properties: ['price'])]
 #[ApiFilter(OrderFilter::class, properties: ['price', 'grade'], arguments: ['orderParameterName' => 'order'])]
