@@ -17,7 +17,7 @@ Dockerized web application for managing a phone catalog using Symfony (API Platf
 ## Requirements
 
 - [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+- [Docker Compose v2](https://docs.docker.com/compose/install/)
 
 ---
 
@@ -35,22 +35,17 @@ Dockerized web application for managing a phone catalog using Symfony (API Platf
 
 3. **Start all services using Docker Compose:**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
-4. **Install PHP dependencies (inside the PHP container):**
+4. **Run Symfony database migrations:**
    ```bash
    docker exec -it symfony_php composer install
    ```
 
-5. **Run Symfony database migrations:**
+5. **Run Scraper:**
    ```bash
-   docker exec -it symfony_php composer install
-   ```
-
-6. **Run Scraper:**
-   ```bash
-   docker-compose run scraper scrape
+   docker compose run scraper scrape
    ```
 
 ## Access the Application
