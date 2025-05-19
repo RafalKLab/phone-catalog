@@ -1,4 +1,5 @@
-# Start with docker-compose run scraper scrape
+# Start with docker compose run scraper scrape
+import re
 import requests
 import hashlib
 from bs4 import BeautifulSoup
@@ -140,15 +141,25 @@ def extract_storage_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
     return storage, new_tokens
 
 def extract_brand_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
-    """
-    Extracts the first token as brand, removes it from the token list.
-    """
-    if not tokens:
-        return "Unknown", tokens
+     """
+     Looks for a known phone brand in the tokens. If found, returns the brand and tokens with it removed.
+     Otherwise, returns 'Unknown' and the original tokens.
+     """
+     KNOWN_BRANDS = {
+        "Apple", "Samsung", "Xiaomi", "OnePlus", "Huawei", "Nokia", "Motorola",
+        "Sony", "Google", "Realme", "Oppo", "Vivo", "Asus", "Honor", "Lenovo"
+     }
 
-    brand = tokens[0].capitalize()
+     lowered_tokens = [token.lower() for token in tokens]
+     brand_lookup = {brand.lower(): brand for brand in KNOWN_BRANDS}
+     for i, token in enumerate(lowered_tokens):
+         if token in brand_lookup:
+            brand = brand_lookup[token]
+            new_tokens = tokens[:i] + tokens[i+1:]
 
-    return brand, tokens[1:]
+            return brand, new_tokens
+
+     return "Other", tokens
 
 def extract_model_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
     """
@@ -159,6 +170,9 @@ def extract_model_from_tokens(tokens: List[str]) -> Tuple[str, List[str]]:
 
     return " ".join(cleaned_tokens).strip(), tokens
 
+def extract_category_from_url(url: str) -> str:
+    match = re.search(r"/category/([^/?#]+)", url)
+    return match.group(1) if match else "Unknown"
 
 def main():
     print("Scraping Breezy products")
@@ -172,6 +186,7 @@ def main():
     URL = "https://breezy.pl/en/category/2nd-life-iphone?page={}"
     CHUNK_SIZE = 200
 
+    category_name = extract_category_from_url(URL)
     page = 1
     items = []
 
@@ -208,7 +223,7 @@ def main():
 
         if len(items) >= CHUNK_SIZE:
             print(f"Inserting chunk of {CHUNK_SIZE} items to DB")
-            insert_data(items)
+            insert_data(items, category_name)
             items = []
 
         page += 1
@@ -216,7 +231,7 @@ def main():
     # Insert remaining items if any
     if items:
         print(f"Inserting final batch of {len(items)} items to DB")
-        insert_data(items)
+        insert_data(items, category_name)
 
 
     print("Scraping complete.")

@@ -88,13 +88,13 @@ def item_exists(cursor, item_hash: str) -> bool:
     return cursor.fetchone() is not None
 
 
-def insert_data(items, category_name="2nd-life-iphone"):
+def insert_data(items, category_name):
     connection = connect()
     try:
         with connection.cursor() as cursor:
             for item in items:
                 if item_exists(cursor, item['hash']):
-                                    continue
+                    continue
 
                 brand_id = insert_brand(cursor, item['brand'])
                 model_id = insert_model(cursor, item['model'], brand_id)
