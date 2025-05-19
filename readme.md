@@ -6,7 +6,11 @@ Dockerized web application for managing a phone catalog using Symfony (API Platf
 
 ## Project Structure
 
-
+- `backend/` - Symfony application
+- `frontend/` - Vue.js SPA
+- `scraper/` - Python-based scraper
+- `nginx` - Nginx server configuration
+- `.env` - Global environment variables
 
 ---
 
@@ -19,22 +23,32 @@ Dockerized web application for managing a phone catalog using Symfony (API Platf
 
 ## Setup Instructions
 
-1. **Start all services using Docker Compose:**
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/RafalKLab/phone-catalog.git
+    ```
+
+2. Navigate to root folder
+    ```bash
+    cd phone-catalog
+    ```
+
+3. **Start all services using Docker Compose:**
    ```bash
    docker-compose up -d
    ```
 
-2. **Install PHP dependencies (inside the PHP container):**
+4. **Install PHP dependencies (inside the PHP container):**
    ```bash
    docker exec -it symfony_php composer install
    ```
 
-3. **Run Symfony database migrations:**
+5. **Run Symfony database migrations:**
    ```bash
    docker exec -it symfony_php composer install
    ```
 
-4. **Run Scraper:**
+6. **Run Scraper:**
    ```bash
    docker-compose run scraper scrape
    ```
